@@ -1,0 +1,17 @@
+```yaml
+version: '3.8'
+services:
+  video-blur:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app:ro
+    environment:
+      - LOG_LEVEL=info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+```
