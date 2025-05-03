@@ -13,6 +13,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 # Suppress verbose TensorFlow/MediaPipe logs
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+# Suppress Mediapipe/C++ warning logs (glog)
+os.environ['GLOG_minloglevel'] = '2'
+os.environ['GLOG_logtostderr'] = '1'
 import absl.logging
 absl.logging.set_verbosity(absl.logging.ERROR)
 # Lower MediaPipe logger level
@@ -80,6 +83,19 @@ def heavy_process(input_path: str, blur_all: bool, change_voice: bool) -> str:
     fps = cap.get(cv2.CAP_PROP_FPS)
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)); h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     cap.release()
+    # --- VIDEO METADATA ---
+    # Total frames and duration
+    temp_cap = cv2.VideoCapture(input_path)
+    frame_count = int(temp_cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    temp_cap.release()
+    duration = frame_count / fps if fps else 0
+    logger.info("===== VIDEO METADATA =====")
+    logger.info("File: %s", base)
+    logger.info("Resolution: %dx%d", w, h)
+    logger.info("FPS: %.2f", fps)
+    logger.info("Total frames: %d", frame_count)
+    logger.info("Duration: %.2f seconds", duration)
+    logger.info("===== END METADATA =====")
     logger.info("Video %s: %dx%d @ %.2f FPS", base, w, h, fps)
 
     frames = []
